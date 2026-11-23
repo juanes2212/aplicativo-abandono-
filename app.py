@@ -84,7 +84,7 @@ with st.form("churn_form"):
         c5, c6, c7 = st.columns(3)
         antiguedad = c5.number_input("Antigüedad (meses)", min_value=0, max_value=120, value=18, step=1)
         perfiles = c6.number_input("Perfiles activos", min_value=1, max_value=10, value=2, step=1)
-        tendencia = c7.selectbox("Tendencia de uso", options=["Stable", "Increasing", "Declining"], index=0)
+        tendencia = c7.selectbox("Tendencia de uso", options=["Estable", "Creciente", "Decreciente"], index=0)
 
         t1, t2, t3 = st.columns(3)
         aumento_precio = 1 if t1.toggle("Aumento reciente de precio", value=False) else 0
