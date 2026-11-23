@@ -53,7 +53,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-MODEL_PATH = "model/netflix_churn_model.pkl"
+MODEL_PATH = "netflix_churn_model.pkl"
 
 @st.cache_resource
 def load_model(path: str):
