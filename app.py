@@ -54,6 +54,21 @@ st.markdown("""
 
 MODEL_PATH = "netflix_churn_model.pkl"
 
+PLAN_PRICES = {
+    "Ads": 7.99,
+    "Standard": 15.49,
+    "Premium": 22.99,
+}
+PRICE_OPTIONS = [7.99, 15.49, 22.99]
+
+if "plan_actual" not in st.session_state:
+    st.session_state.plan_actual = "Standard"
+if "precio_mensual" not in st.session_state:
+    st.session_state.precio_mensual = PLAN_PRICES["Standard"]
+
+def sync_price_with_plan():
+    st.session_state.precio_mensual = PLAN_PRICES[st.session_state.plan_actual]
+
 @st.cache_resource
 def load_model(path: str):
     if os.path.exists(path):
@@ -86,10 +101,16 @@ with st.form("churn_form"):
         plan = c3.selectbox(
             "Plan actual",
             options=["Ads", "Standard", "Premium"],
-            index=1,
+            key="plan_actual",
+            on_change=sync_price_with_plan,
             format_func=lambda x: {"Ads": "Con anuncios", "Standard": "Estándar", "Premium": "Premium"}[x]
         )
-        precio = c4.number_input("Precio mensual ($)", min_value=0.0, max_value=100.0, value=19.99, step=0.5)
+        precio = c4.selectbox(
+            "Precio mensual ($)",
+            options=PRICE_OPTIONS,
+            key="precio_mensual",
+            format_func=lambda x: f"${x:.2f}"
+        )
 
         c5, c6, c7 = st.columns(3)
         antiguedad = c5.number_input("Antigüedad (meses)", min_value=0, max_value=120, value=18, step=1)
