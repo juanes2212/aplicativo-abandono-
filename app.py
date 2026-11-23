@@ -77,8 +77,8 @@ with st.form("churn_form"):
 
         c1, c2, c3, c4 = st.columns(4)
         edad = c1.number_input("Edad", min_value=18, max_value=100, value=35, step=1)
-        ingresos = c2.selectbox("Nivel de ingresos", options=["Low", "Mid", "High"], index=1)
-        plan = c3.selectbox("Plan actual", options=["Ads", "Standard", "Premium"], index=1)
+        ingresos = c2.selectbox("Nivel de ingresos", options=["Bajo, "Medio", "Alto"], index=1)
+        plan = c3.selectbox("Plan actual", options=["Plan con anuncios", "Estandar", "Premium"], index=1)
         precio = c4.number_input("Precio mensual ($)", min_value=0.0, max_value=100.0, value=19.99, step=0.5)
 
         c5, c6, c7 = st.columns(3)
