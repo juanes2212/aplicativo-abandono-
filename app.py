@@ -105,14 +105,14 @@ with st.form("churn_form"):
             step=0.5,
             format="%.1f"
         )
-        duracion_sesion_min = v2.number_input(
-            "Duración promedio sesión (minutos)",
-            min_value=15,
-            max_value=720,
-            value=100,
-            step=15
+        duracion_sesion = v2.number_input(
+            "Duración promedio sesión (h)",
+            min_value=0.25,
+            max_value=12.0,
+            value=1.75,
+            step=0.25,
+            format="%.2f"
         )
-        duracion_sesion = duracion_sesion_min / 60.0
         contenido = v3.selectbox("Tipo de contenido", options=["Series", "Movies"], index=0)
         diversidad = v4.slider("Diversidad de géneros", min_value=1.0, max_value=10.0, value=5.5, step=0.1)
 
