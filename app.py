@@ -54,7 +54,6 @@ st.markdown("""
 
 MODEL_PATH = "netflix_churn_model.pkl"
 
-# Tarifas de referencia en COP para los 3 planes y su equivalencia en escala del modelo (USD)
 PLAN_PRICES_COP = {
     "Ads": 18900,
     "Standard": 29900,
@@ -207,20 +206,33 @@ if submitted:
             st.error(f"Error al generar la predicción con el modelo: {e}")
             st.stop()
 
+    pct = prob * 100
+
     with st.container(border=True):
         st.subheader("Resultado del análisis")
         r1, r2 = st.columns([2, 1])
         with r1:
-            if pred == 1:
-                st.error("🚨 **Alto riesgo de abandono (Churn = 1)**")
+            if pct >= 50:
+                st.error(f"🚨 **Hay riesgo de abandono ({pct:.1f}%) — Alta probabilidad de cancelación**")
+                recomendacion = (
+                    "Se detecta un riesgo alto de abandono. Conviene activar campañas de retención, "
+                    "ofrecer beneficios o ajustes de plan y recomendar estrenos alineados a sus gustos."
+                )
+            elif pct >= 30:
+                st.warning(f"⚠️ **Riesgo moderado de abandono ({pct:.1f}%) — Suscriptor en observación**")
+                recomendacion = (
+                    "La probabilidad no supera el umbral crítico, pero merece seguimiento preventivo: "
+                    "envía recomendaciones personalizadas y vigila si disminuye su tiempo de visualización."
+                )
             else:
-                st.success("✅ **El suscriptor se mantiene activo (Churn = 0)**")
+                st.success(f"✅ **Sin riesgo significativo de abandono ({pct:.1f}%) — Suscriptor estable**")
+                recomendacion = (
+                    "El suscriptor muestra un comportamiento saludable y baja probabilidad de cancelar. "
+                    "Mantén una experiencia fluida y novedades relevantes de su catálogo preferido."
+                )
         with r2:
-            st.metric("Probabilidad estimada de Churn", f"{prob * 100:.2f}%")
+            st.metric("Probabilidad estimada de Churn", f"{pct:.2f}%")
 
-        st.info(
-            "💡 **Recomendación:** Si el riesgo es alto o la tendencia es decreciente, "
-            "prioriza campañas de retención, recomendaciones personalizadas o beneficios en el plan."
-        )
+        st.info(f"💡 **Recomendación:** {recomendacion}")
 
 st.markdown('<div class="footer-note">Proyecto de predicción de abandono de suscriptores · Streamlit</div>', unsafe_allow_html=True)
