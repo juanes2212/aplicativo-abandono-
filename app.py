@@ -99,7 +99,7 @@ with st.form("churn_form"):
         v1, v2, v3, v4 = st.columns(4)
         horas = v1.number_input("Horas de visualización", min_value=0.0, max_value=100.0, value=7.5, step=0.5)
         duracion_sesion = v2.number_input("Duración promedio sesión (h)", min_value=0.1, max_value=12.0, value=1.7, step=0.1)
-        contenido = v3.selectbox("Tipo de contenido", options=["Series", "Movies"], index=0)
+        contenido = v3.selectbox("Tipo de contenido", options=["Series", "Peliculas"], index=0)
         diversidad = v4.slider("Diversidad de géneros", min_value=1.0, max_value=10.0, value=5.5, step=0.1)
 
         originales = st.slider("Proporción de contenido original", min_value=0.0, max_value=1.0, value=0.48, step=0.01)
