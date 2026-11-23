@@ -76,16 +76,15 @@ with st.form("churn_form"):
         st.markdown('<div class="section-sub">Datos demográficos, tipo de plan y cambios recientes en tarifa o suscripción.</div>', unsafe_allow_html=True)
 
         c1, c2, c3, c4 = st.columns(4)
-        user_id = c1.text_input("ID de usuario", value="U9999")
-        edad = c2.number_input("Edad", min_value=18, max_value=100, value=35, step=1)
-        ingresos = c3.selectbox("Nivel de ingresos", options=["Low", "Mid", "High"], index=1)
-        plan = c4.selectbox("Plan actual", options=["Ads", "Standard", "Premium"], index=1)
+        edad = c1.number_input("Edad", min_value=18, max_value=100, value=35, step=1)
+        ingresos = c2.selectbox("Nivel de ingresos", options=["Low", "Mid", "High"], index=1)
+        plan = c3.selectbox("Plan actual", options=["Ads", "Standard", "Premium"], index=1)
+        precio = c4.number_input("Precio mensual ($)", min_value=0.0, max_value=100.0, value=19.99, step=0.5)
 
-        c5, c6, c7, c8 = st.columns(4)
-        precio = c5.number_input("Precio mensual ($)", min_value=0.0, max_value=100.0, value=19.99, step=0.5)
-        antiguedad = c6.number_input("Antigüedad (meses)", min_value=0.0, max_value=120.0, value=18.0, step=1.0)
-        perfiles = c7.number_input("Perfiles activos", min_value=1, max_value=10, value=2, step=1)
-        tendencia = c8.selectbox("Tendencia de uso", options=["Stable", "Increasing", "Declining"], index=0)
+        c5, c6, c7 = st.columns(3)
+        antiguedad = c5.number_input("Antigüedad (meses)", min_value=0.0, max_value=120.0, value=18.0, step=1.0)
+        perfiles = c6.number_input("Perfiles activos", min_value=1, max_value=10, value=2, step=1)
+        tendencia = c7.selectbox("Tendencia de uso", options=["Stable", "Increasing", "Declining"], index=0)
 
         t1, t2, t3 = st.columns(3)
         aumento_precio = 1 if t1.toggle("Aumento reciente de precio", value=False) else 0
@@ -110,6 +109,7 @@ with st.form("churn_form"):
 if submitted:
     X_inference = pd.DataFrame([{
         "Edad": edad,
+        "Precio": precio,
         "Aumento_Precio": aumento_precio,
         "Baja_Plan": baja_plan,
         "Horas": horas,
