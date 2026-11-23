@@ -77,14 +77,14 @@ with st.form("churn_form"):
 
         c1, c2, c3, c4 = st.columns(4)
         edad = c1.number_input("Edad", min_value=18, max_value=100, value=35, step=1)
-        ingresos = c2.selectbox("Nivel de ingresos", options=["Bajo", "Medio", "Alto"], index=1)
-        plan = c3.selectbox("Plan actual", options=["Plan con anuncios", "Estándar", "Premium"], index=1)
+        ingresos = c2.selectbox("Nivel de ingresos", options=["Low", "Mid", "High"], index=1)
+        plan = c3.selectbox("Plan actual", options=["Ads", "Standard", "Premium"], index=1)
         precio = c4.number_input("Precio mensual ($)", min_value=0.0, max_value=100.0, value=19.99, step=0.5)
 
         c5, c6, c7 = st.columns(3)
         antiguedad = c5.number_input("Antigüedad (meses)", min_value=0, max_value=120, value=18, step=1)
         perfiles = c6.number_input("Perfiles activos", min_value=1, max_value=10, value=2, step=1)
-        tendencia = c7.selectbox("Tendencia de uso", options=["Estable", "Creciente", "Decreciente"], index=0)
+        tendencia = c7.selectbox("Tendencia de uso", options=["Stable", "Increasing", "Declining"], index=0)
 
         t1, t2, t3 = st.columns(3)
         aumento_precio = 1 if t1.toggle("Aumento reciente de precio", value=False) else 0
@@ -97,9 +97,23 @@ with st.form("churn_form"):
         st.markdown('<div class="section-sub">Tiempo de reproducción, preferencia de formato y variedad de géneros explorados.</div>', unsafe_allow_html=True)
 
         v1, v2, v3, v4 = st.columns(4)
-        horas = v1.number_input("Horas de visualización", min_value=0.0, max_value=100.0, value=7.5, step=0.5)
-        duracion_sesion = v2.number_input("Duración promedio sesión (h)", min_value=0.1, max_value=12.0, value=1.7, step=0.1)
-        contenido = v3.selectbox("Tipo de contenido", options=["Series", "Peliculas"], index=0)
+        horas = v1.number_input(
+            "Horas de visualización",
+            min_value=0.0,
+            max_value=100.0,
+            value=7.5,
+            step=0.5,
+            format="%.1f"
+        )
+        duracion_sesion_min = v2.number_input(
+            "Duración promedio sesión (minutos)",
+            min_value=15,
+            max_value=720,
+            value=100,
+            step=15
+        )
+        duracion_sesion = duracion_sesion_min / 60.0
+        contenido = v3.selectbox("Tipo de contenido", options=["Series", "Movies"], index=0)
         diversidad = v4.slider("Diversidad de géneros", min_value=1.0, max_value=10.0, value=5.5, step=0.1)
 
         originales = st.slider("Proporción de contenido original", min_value=0.0, max_value=1.0, value=0.48, step=0.01)
