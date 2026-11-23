@@ -84,12 +84,29 @@ model = load_model(MODEL_PATH)
 st.title("🎬 Predicción de Abandono de Suscriptores")
 st.caption("Evalúa el riesgo de cancelación a partir del perfil de cuenta, plan y hábitos de visualización.")
 
-with st.form("churn_form"):
-    # SECCIÓN 1: Perfil y plan
-    with st.container(border=True):
-        st.markdown('<div class="section-header"><span class="section-badge">1</span><h4 style="margin:0;">Perfil y plan de suscripción</h4></div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-sub">Datos demográficos, tipo de plan y cambios recientes en tarifa o suscripción.</div>', unsafe_allow_html=True)
+# Selector de plan y precio fuera del form para que el precio cambie al instante
+with st.container(border=True):
+    st.markdown('<div class="section-header"><span class="section-badge">1</span><h4 style="margin:0;">Perfil y plan de suscripción</h4></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Selecciona el plan y su tarifa mensual; el precio se ajusta automáticamente al cambiar de plan.</div>', unsafe_allow_html=True)
 
+    p1, p2 = st.columns(2)
+    plan = p1.selectbox(
+        "Plan actual",
+        options=["Ads", "Standard", "Premium"],
+        key="plan_actual",
+        on_change=sync_price_with_plan,
+        format_func=lambda x: {"Ads": "Con anuncios", "Standard": "Estándar", "Premium": "Premium"}[x]
+    )
+    precio = p2.selectbox(
+        "Precio mensual ($)",
+        options=PRICE_OPTIONS,
+        key="precio_mensual",
+        format_func=lambda x: f"${x:.2f}"
+    )
+
+with st.form("churn_form"):
+    # Resto de SECCIÓN 1: Perfil y suscripción
+    with st.container(border=True):
         c1, c2, c3, c4 = st.columns(4)
         edad = c1.number_input("Edad", min_value=18, max_value=100, value=35, step=1)
         ingresos = c2.selectbox(
@@ -98,31 +115,16 @@ with st.form("churn_form"):
             index=1,
             format_func=lambda x: {"Low": "Bajo", "Mid": "Medio", "High": "Alto"}[x]
         )
-        plan = c3.selectbox(
-            "Plan actual",
-            options=["Ads", "Standard", "Premium"],
-            key="plan_actual",
-            format_func=lambda x: {"Ads": "Con anuncios", "Standard": "Estándar", "Premium": "Premium"}[x]
-        )
-        precio_sugerido = PLAN_PRICES[plan]
-        precio = c4.selectbox(
-            "Precio mensual ($)",
-            options=PRICE_OPTIONS,
-            index=PRICE_OPTIONS.index(precio_sugerido),
-            format_func=lambda x: f"${x:.2f}"
-        )
+        antiguedad = c3.number_input("Antigüedad (meses)", min_value=0, max_value=120, value=18, step=1)
+        perfiles = c4.number_input("Perfiles activos", min_value=1, max_value=10, value=2, step=1)
 
-        c5, c6, c7 = st.columns(3)
-        antiguedad = c5.number_input("Antigüedad (meses)", min_value=0, max_value=120, value=18, step=1)
-        perfiles = c6.number_input("Perfiles activos", min_value=1, max_value=10, value=2, step=1)
-        tendencia = c7.selectbox(
+        c5, t1, t2, t3 = st.columns(4)
+        tendencia = c5.selectbox(
             "Tendencia de uso",
             options=["Stable", "Increasing", "Declining"],
             index=0,
             format_func=lambda x: {"Stable": "Estable", "Increasing": "Creciente", "Declining": "Decreciente"}[x]
         )
-
-        t1, t2, t3 = st.columns(3)
         aumento_precio = 1 if t1.toggle("Aumento reciente de precio", value=False) else 0
         baja_plan = 1 if t2.toggle("Cambio a plan inferior (Downgrade)", value=False) else 0
         maraton = 1 if t3.toggle("Hábito de maratón (Binge)", value=False) else 0
