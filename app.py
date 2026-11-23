@@ -9,7 +9,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilos suaves para acercarnos a una interfaz limpia tipo tarjeta/botón azul petróleo
 st.markdown("""
 <style>
     .section-header {
@@ -109,24 +108,29 @@ with st.form("churn_form"):
     submitted = st.form_submit_button("Calcular riesgo de abandono", type="primary", use_container_width=True)
 
 if submitted:
-    input_data = pd.DataFrame({
-        "User_ID": [user_id],
-        "Age": [edad],
-        "Income": [ingresos],
-        "Plan": [plan],
-        "Price": [precio],
-        "Price_Increase": [aumento_precio],
-        "Downgrade": [baja_plan],
-        "Trend": [tendencia],
-        "Watch_Hours": [horas],
-        "Content_Type": [contenido],
-        "Originals": [originales],
-        "Binge": [maraton],
-        "Session": [duracion_sesion],
-        "Diversity": [diversidad],
-        "Profiles": [perfiles],
-        "Account_Age": [antiguedad],
-    })
+    X_inference = pd.DataFrame([{
+        "Edad": edad,
+        "Aumento_Precio": aumento_precio,
+        "Baja_Plan": baja_plan,
+        "Horas": horas,
+        "Originales": originales,
+        "Maraton": maraton,
+        "Duracion_Sesion": duracion_sesion,
+        "Diversidad": diversidad,
+        "Perfiles": perfiles,
+        "Antiguedad": antiguedad,
+        "Ingresos_High": 1 if ingresos == "High" else 0,
+        "Ingresos_Low": 1 if ingresos == "Low" else 0,
+        "Ingresos_Mid": 1 if ingresos == "Mid" else 0,
+        "Plan_Ads": 1 if plan == "Ads" else 0,
+        "Plan_Premium": 1 if plan == "Premium" else 0,
+        "Plan_Standard": 1 if plan == "Standard" else 0,
+        "Tendencia_Declining": 1 if tendencia == "Declining" else 0,
+        "Tendencia_Increasing": 1 if tendencia == "Increasing" else 0,
+        "Tendencia_Stable": 1 if tendencia == "Stable" else 0,
+        "Contenido_Movies": 1 if contenido == "Movies" else 0,
+        "Contenido_Series": 1 if contenido == "Series" else 0,
+    }])
 
     if model is None:
         st.warning(f"No se encontró `{MODEL_PATH}` en el repositorio. Se muestra una estimación de demostración.")
@@ -134,9 +138,11 @@ if submitted:
         pred = 1 if prob >= 0.5 else 0
     else:
         try:
-            X_inference = input_data.drop(columns=["User_ID"], errors="ignore")
             if hasattr(model, "feature_names_in_"):
                 expected_cols = list(model.feature_names_in_)
+                for col in expected_cols:
+                    if col not in X_inference.columns:
+                        X_inference[col] = 0
                 X_inference = X_inference[expected_cols]
 
             pred = int(model.predict(X_inference)[0])
