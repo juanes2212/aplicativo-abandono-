@@ -54,20 +54,29 @@ st.markdown("""
 
 MODEL_PATH = "netflix_churn_model.pkl"
 
-PLAN_PRICES = {
-    "Ads": 7.99,
-    "Standard": 15.49,
-    "Premium": 22.99,
+# Tarifas de referencia en COP para los 3 planes y su equivalencia en escala del modelo (USD)
+PLAN_PRICES_COP = {
+    "Ads": 18900,
+    "Standard": 29900,
+    "Premium": 44900,
 }
-PRICE_OPTIONS = [7.99, 15.49, 22.99]
+COP_TO_MODEL_USD = {
+    18900: 7.99,
+    29900: 15.49,
+    44900: 22.99,
+}
+PRICE_OPTIONS_COP = [18900, 29900, 44900]
+
+def format_cop(valor: int) -> str:
+    return f"${valor:,.0f} COP".replace(",", ".")
 
 if "plan_actual" not in st.session_state:
     st.session_state.plan_actual = "Standard"
-if "precio_mensual" not in st.session_state:
-    st.session_state.precio_mensual = PLAN_PRICES["Standard"]
+if "precio_mensual_cop" not in st.session_state:
+    st.session_state.precio_mensual_cop = PLAN_PRICES_COP["Standard"]
 
 def sync_price_with_plan():
-    st.session_state.precio_mensual = PLAN_PRICES[st.session_state.plan_actual]
+    st.session_state.precio_mensual_cop = PLAN_PRICES_COP[st.session_state.plan_actual]
 
 @st.cache_resource
 def load_model(path: str):
@@ -84,10 +93,10 @@ model = load_model(MODEL_PATH)
 st.title("🎬 Predicción de Abandono de Suscriptores")
 st.caption("Evalúa el riesgo de cancelación a partir del perfil de cuenta, plan y hábitos de visualización.")
 
-# Selector de plan y precio fuera del form para que el precio cambie al instante
+# Selector de plan y precio en COP fuera del form para que el precio cambie al instante
 with st.container(border=True):
     st.markdown('<div class="section-header"><span class="section-badge">1</span><h4 style="margin:0;">Perfil y plan de suscripción</h4></div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-sub">Selecciona el plan y su tarifa mensual; el precio se ajusta automáticamente al cambiar de plan.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Selecciona el plan y su tarifa mensual en pesos colombianos (COP); el precio se ajusta automáticamente al cambiar de plan.</div>', unsafe_allow_html=True)
 
     p1, p2 = st.columns(2)
     plan = p1.selectbox(
@@ -97,12 +106,13 @@ with st.container(border=True):
         on_change=sync_price_with_plan,
         format_func=lambda x: {"Ads": "Con anuncios", "Standard": "Estándar", "Premium": "Premium"}[x]
     )
-    precio = p2.selectbox(
-        "Precio mensual ($)",
-        options=PRICE_OPTIONS,
-        key="precio_mensual",
-        format_func=lambda x: f"${x:.2f}"
+    precio_cop = p2.selectbox(
+        "Precio mensual (COP)",
+        options=PRICE_OPTIONS_COP,
+        key="precio_mensual_cop",
+        format_func=format_cop
     )
+    precio_modelo = COP_TO_MODEL_USD[precio_cop]
 
 with st.form("churn_form"):
     # Resto de SECCIÓN 1: Perfil y suscripción
@@ -152,7 +162,7 @@ with st.form("churn_form"):
 if submitted:
     X_inference = pd.DataFrame([{
         "Edad": edad,
-        "Precio": precio,
+        "Precio": precio_modelo,
         "Aumento_Precio": aumento_precio,
         "Baja_Plan": baja_plan,
         "Horas": horas,
