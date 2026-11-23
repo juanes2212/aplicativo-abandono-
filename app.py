@@ -102,13 +102,13 @@ with st.form("churn_form"):
             "Plan actual",
             options=["Ads", "Standard", "Premium"],
             key="plan_actual",
-            on_change=sync_price_with_plan,
             format_func=lambda x: {"Ads": "Con anuncios", "Standard": "Estándar", "Premium": "Premium"}[x]
         )
+        precio_sugerido = PLAN_PRICES[plan]
         precio = c4.selectbox(
             "Precio mensual ($)",
             options=PRICE_OPTIONS,
-            key="precio_mensual",
+            index=PRICE_OPTIONS.index(precio_sugerido),
             format_func=lambda x: f"${x:.2f}"
         )
 
